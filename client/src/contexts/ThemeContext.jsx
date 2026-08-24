@@ -4,10 +4,9 @@ const ThemeContext = createContext();
 
 export const ThemeProvider = ({ children }) => {
   const [isDarkMode, setIsDarkMode] = useState(() => {
-    // Always start in dark mode for Sida Solar
     const savedTheme = localStorage.getItem("theme");
-    if (!savedTheme) localStorage.setItem("theme", "dark");
-    return savedTheme !== "light";
+    if (!savedTheme) localStorage.setItem("theme", "light");
+    return savedTheme === "dark";
   });
 
   useEffect(() => {
