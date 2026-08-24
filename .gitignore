@@ -1,0 +1,25 @@
+# Node.js
+**/node_modules/
+**/dist/
+**/dist-electron/
+**/release/
+**/build/
+
+# .NET
+**/bin/
+**/obj/
+
+# Visual Studio
+.vs/
+.vscode/
+
+# Environment
+.env
+.env.*
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db

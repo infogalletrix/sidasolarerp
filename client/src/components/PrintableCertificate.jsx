@@ -1,0 +1,78 @@
+import React, { forwardRef } from "react";
+import logoImage from "../assets/logo.png";
+
+const PrintableCertificate = forwardRef(({ site }, ref) => {
+  if (!site) return null;
+
+  return (
+    <div
+      ref={ref}
+      className="p-10 bg-white text-black font-sans mx-auto flex flex-col relative"
+      style={{ width: '210mm', height: '297mm' }}
+    >
+      {/* Header - Letter Pad Style */}
+      <div className="flex justify-between border-b-2 border-slate-900 pb-6 mb-8">
+        <div className="flex items-center gap-4">
+          <img 
+            src={logoImage} 
+            alt="Logo" 
+            className="w-32 h-auto max-h-12 object-contain" 
+            onError={(e) => { e.target.onerror = null; e.target.style.display = 'none'; }} 
+          />
+          <div>
+            <h1 className="text-3xl font-bold text-slate-900">Sida Solar</h1>
+            <p className="text-xs text-slate-600">No.378, Kagithapuram, S.kolathur, Chennai-600129</p>
+            <p className="text-xs text-slate-600">Phone: 9176093482 | Email: contact@sidasolar.com</p>
+          </div>
+        </div>
+        <div className="text-right flex flex-col justify-center">
+          <p className="text-sm font-semibold text-slate-600 mt-2">Date: {new Date().toLocaleDateString("en-GB")}</p>
+          {site.id && (
+            <p className="text-xs font-bold text-slate-500 mt-1">Ref WO: {site.id}</p>
+          )}
+        </div>
+      </div>
+
+      <div className="text-center mb-8">
+        <h2 className="text-3xl font-bold uppercase text-slate-800 tracking-wider border-b-2 border-slate-800 inline-block pb-2 px-6">Completion Certificate</h2>
+      </div>
+
+      {/* Certificate Body */}
+      <div className="flex-1 flex flex-col items-center pt-10 px-8 text-center space-y-8">
+        <h3 className="text-3xl font-serif text-slate-800 italic mb-8">To Whom It May Concern</h3>
+        
+        <p className="text-lg text-slate-700 leading-relaxed max-w-2xl">
+          This is to officially certify that the solar installation and commissioning project titled:
+        </p>
+        
+        <p className="text-2xl font-bold text-slate-900 border-b-2 border-slate-200 pb-2 inline-block px-8">
+          "{site.name}"
+        </p>
+        
+        <div className="text-lg text-slate-700 leading-relaxed max-w-2xl mt-8">
+          <p className="mb-2">undertaken for our esteemed client:</p>
+          <p className="text-xl font-bold text-slate-900">{site.clientName || '________________________'}</p>
+          {site.organizationName && (
+            <p className="text-lg font-semibold text-slate-600">({site.organizationName})</p>
+          )}
+        </div>
+
+        <div className="mt-12 p-6 bg-slate-50 rounded-xl border border-slate-100 max-w-3xl">
+          <p className="text-lg font-semibold text-emerald-700 text-center uppercase tracking-wider mb-2">Declaration of Completion</p>
+          <p className="text-md text-slate-700">
+            All contracted works are finished according to the agreed specifications, and there are no pending works remaining for this project.
+          </p>
+        </div>
+      </div>
+
+      {/* Footer */}
+      <div className="mt-auto pt-6 border-t border-gray-300 text-center print:fixed print:bottom-8 print:w-full print:left-0">
+        <p className="text-xs text-gray-500 italic font-medium">This is a computer generated document and does not require a physical signature.</p>
+      </div>
+    </div>
+  );
+});
+
+export default PrintableCertificate;
+
+

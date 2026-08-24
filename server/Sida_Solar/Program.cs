@@ -1,0 +1,99 @@
+using Microsoft.EntityFrameworkCore;
+using Sida_Solar;
+using System.Text.Json.Serialization;
+var builder = WebApplication.CreateBuilder(args);
+
+// 1. SERVICES
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.ReferenceHandler =
+            System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+    });
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
+// 2. CORS — allow the Vite dev server
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        policy.WithOrigins("http://localhost:5173", "http://localhost:3000","http://localhost:5174")
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
+
+// 3. SQLITE via EF Core
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+builder.Services.AddDbContext<SidaSolarDbContext>(options =>
+    options.UseSqlite(connectionString));
+
+// 4. CONFIGURE PORT 5000
+
+var app = builder.Build();
+
+try
+{
+    using var scope = app.Services.CreateScope();
+    var db = scope.ServiceProvider.GetRequiredService<SidaSolarDbContext>();
+    
+    // Apply pending migrations automatically on startup
+    db.Database.Migrate();
+    
+    db.Database.CanConnect();
+    Console.WriteLine("DB CONNECTION SUCCESSFUL!");
+    
+    // Seed sample data
+    // try
+    // {
+    //     DataSeeder.SeedData(db);
+    //     Console.WriteLine("DATA SEEDED SUCCESSFULLY!");
+    // }
+    // catch (Exception ex)
+    // {
+    //     Console.WriteLine("DATA SEEDING FAILED: " + ex.Message);
+    // }
+}
+catch (Exception ex)
+{
+    Console.WriteLine("DB CONNECTION FAILED: " + ex.Message);
+    if (ex.InnerException != null) Console.WriteLine("INNER EXCEPTION: " + ex.InnerException.Message);
+}
+
+// 5. PIPELINE
+app.UseMiddleware<Sida_Solar.Middleware.GlobalExceptionMiddleware>();
+
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+
+app.UseCors("AllowFrontend");
+app.UseAuthorization();
+app.MapControllers();
+
+app.MapPost("/api/reset-database", async (string password, SidaSolarDbContext dbContext, IConfiguration config) =>
+{
+    var securePassword = config["ResetPassword"] ?? "SecureReset123!";
+    if (password != securePassword)
+    {
+        return Results.Unauthorized();
+    }
+
+    try
+    {
+        await dbContext.Database.EnsureDeletedAsync();
+        await dbContext.Database.MigrateAsync();
+        return Results.Ok(new { message = "Database reset successfully." });
+    }
+    catch (Exception ex)
+    {
+        return Results.Problem($"Error: {ex.Message}");
+    }
+});
+
+app.Run();
+
+

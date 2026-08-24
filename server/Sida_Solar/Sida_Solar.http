@@ -1,0 +1,7 @@
+@Sida_Solar_HostAddress = http://localhost:5255
+
+GET {{Sida_Solar_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
+
